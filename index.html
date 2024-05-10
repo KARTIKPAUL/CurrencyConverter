@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body{
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container{
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            }
+        input, select, button {
+        display: block;
+        margin: 10px 0;
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        }
+        #btn {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        }
+        #btn:hover{
+            background-color: #0377f4;
+        }
+        #res{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Currency Converter</h1>
+        <input type="number" id="inputBox" placeholder="Enter Amount">
+        <select name="" id="sourceCurrency"></select>
+        <select name="" id="targetCurrency"></select>
+        <button id="btn">Convert Currency</button>
+        <div id="res"></div>
+    </div>
+
+    <script>
+
+        let inputBox = document.getElementById('inputBox');
+        let sourceCurrency = document.getElementById('sourceCurrency');
+        let targetCurrency = document.getElementById('targetCurrency');
+        let btn = document.getElementById('btn')
+        let res = document.getElementById('res');
+
+
+        async function ConvertCurrency(){
+            try {
+                let res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+                let data = await res.json();
+                let currencies = Object.keys(data.rates);
+                currencies.forEach(currency => {
+                sourceCurrency.add(new Option(currency,currency));
+                targetCurrency.add(new Option(currency,currency));
+            });
+            }catch{
+                res.innerHTML = "Something Went Wrong";
+            }
+        }
+
+        async function convert(){
+            let amount = parseFloat(inputBox.value);
+            let sourceCurrencyValue = sourceCurrency.value;
+            let targetCurrencyValue = targetCurrency.value;
+
+            try{
+                let responce = await fetch(`https://api.exchangerate-api.com/v4/latest/${sourceCurrencyValue}`);
+                let data = await responce.json();
+
+                let currencies = Object.keys(data.rates);
+                currencies.forEach(currency => {
+               if(currency == targetCurrencyValue){
+                let ans = amount * data.rates[currency];
+                res.innerHTML = `${amount} ${sourceCurrencyValue} = ${ans} ${targetCurrencyValue}`;
+               }
+            });
+            }catch{
+                res.innerHTML = "Something Went Wrong";
+            }
+        }
+
+        ConvertCurrency();
+        btn.addEventListener('click',convert);
+
+
+    </script>
+</body>
+</html>
+
+
